@@ -5,20 +5,18 @@ import bcrypt from "bcryptjs";
 
 export async function POST(req) {
   try {
-    const { email, password } = await req.json();
     await connectDB();
-
+    const { email, password } = await req.json();
+    
     const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json({ message: "User exists" }, { status: 400 });
-    }
+    if (existingUser) return NextResponse.json({ message: "User exists" }, { status: 400 });
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({ email, password: hashedPassword });
     await newUser.save();
 
     return NextResponse.json({ message: "Success" }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ message: error.message }, { status: 500 });
+  } catch (err) {
+    return NextResponse.json({ message: err.message }, { status: 500 });
   }
 }
