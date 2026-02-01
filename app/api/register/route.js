@@ -1,61 +1,24 @@
-"use client";
-import { useState } from "react";
+import { connectDB } from "@/lib/db"; 
+import User from "@/models/User"; 
+import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 
-export default function Register() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
+export async function POST(req) {
     try {
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+        const { email, password } = await req.json();
+        await connectDB();
 
-      const data = await res.json();
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return NextResponse.json({ message: "User already exists" }, { status: 400 });
+        }
 
-      if (res.ok) {
-        alert("SUCCESS: " + data.message); // Forces a popup so you see it works
-        window.location.href = "/"; // Redirects to login
-      } else {
-        alert("FAILED: " + (data.message || "Unknown error"));
-      }
-    } catch (err) {
-      alert("NETWORK ERROR: Check your connection or Vercel logs.");
-    } finally {
-      setLoading(false);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const newUser = new User({ email, password: hashedPassword });
+        await newUser.save();
+
+        return NextResponse.json({ message: "User registered successfully" }, { status: 201 });
+    } catch (error) {
+        return NextResponse.json({ message: "Server error: " + error.message }, { status: 500 });
     }
-  };
-
-  return (
-    <div style={{ padding: "40px", textAlign: "center", fontFamily: "sans-serif" }}>
-      <h1>Register Account</h1>
-      <form onSubmit={handleSubmit} style={{ display: "inline-block", textAlign: "left" }}>
-        <input 
-          type="email" 
-          placeholder="Email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
-          style={{ display: "block", marginBottom: "10px", padding: "8px" }}
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
-          style={{ display: "block", marginBottom: "10px", padding: "8px" }}
-        />
-        <button type="submit" disabled={loading} style={{ padding: "10px 20px" }}>
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
-    </div>
-  );
 }
