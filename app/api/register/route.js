@@ -1,18 +1,14 @@
 "use client";
 import { useState } from "react";
 
-export default function RegisterForm() {
+export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState(""); // For success messages
-  const [error, setError] = useState("");     // For error messages
-  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState({ message: "", type: "" }); // To show feedback
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setMessage("");
-    setError("");
+  const handleSubmit = async (e) => {
+    e.preventDefault(); // STOP the page from refreshing
+    setStatus({ message: "Connecting to server...", type: "info" });
 
     try {
       const res = await fetch("/api/register", {
@@ -24,52 +20,57 @@ export default function RegisterForm() {
       const data = await res.json();
 
       if (res.ok) {
-        setMessage("User registered successfully! You can now log in.");
+        // SUCCESS: Requirement for "Clear success message"
+        setStatus({ message: "Registration Successful! You can now log in.", type: "success" });
+        alert("Success: User data stored in database!"); 
         setEmail("");
         setPassword("");
       } else {
-        setError(data.message || "Registration failed.");
+        // ERROR: Requirement for "Clear error message"
+        setStatus({ message: data.message || "Registration failed", type: "error" });
       }
     } catch (err) {
-      setError("Network error. Please try again.");
-    } finally {
-      setLoading(false);
+      console.error(err);
+      setStatus({ message: "Network error. Check your connection.", type: "error" });
     }
   };
 
   return (
-    <div className="p-4 border rounded shadow-sm bg-white">
-      <h2 className="text-xl font-bold mb-4">Register</h2>
+    <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
+      <h2>Register for Portfolio</h2>
       
-      {/* Success Message Display */}
-      {message && <p className="p-2 mb-4 bg-green-100 text-green-700 rounded text-sm">{message}</p>}
-      
-      {/* Error Message Display */}
-      {error && <p className="p-2 mb-4 bg-red-100 text-red-700 rounded text-sm">{error}</p>}
+      {/* SUCCESS/ERROR BOXES */}
+      {status.message && (
+        <div style={{ 
+          padding: '10px', 
+          marginBottom: '10px', 
+          borderRadius: '5px',
+          backgroundColor: status.type === 'success' ? '#d4edda' : '#f8d7da',
+          color: status.type === 'success' ? '#155724' : '#721c24'
+        }}>
+          {status.message}
+        </div>
+      )}
 
-      <form onSubmit={handleRegister} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
+      <form onSubmit={handleSubmit}>
+        <input 
+          type="email" 
+          placeholder="Email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+          style={{ display: 'block', width: '100%', marginBottom: '10px', padding: '8px' }}
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 border rounded"
-          required
+        <input 
+          type="password" 
+          placeholder="Password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          required 
+          style={{ display: 'block', width: '100%', marginBottom: '10px', padding: '8px' }}
         />
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-gray-400"
-        >
-          {loading ? "Registering..." : "Register"}
+        <button type="submit" style={{ width: '100%', padding: '10px', cursor: 'pointer' }}>
+          Register
         </button>
       </form>
     </div>
