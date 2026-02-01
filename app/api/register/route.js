@@ -4,9 +4,11 @@ import { useState } from "react";
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // This stops the page from just refreshing
+    e.preventDefault();
+    setLoading(true);
     
     try {
       const res = await fetch("/api/register", {
@@ -15,25 +17,44 @@ export default function Register() {
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await res.json();
+
       if (res.ok) {
-        alert("Registration Successful! Now try to Login."); // REQUIRED SUCCESS MESSAGE
-        window.location.href = "/"; // Redirect to login
+        alert("SUCCESS: " + data.message); // Forces a popup so you see it works
+        window.location.href = "/"; // Redirects to login
       } else {
-        const errorData = await res.json();
-        alert("Error: " + errorData.message); // REQUIRED ERROR MESSAGE
+        alert("FAILED: " + (data.message || "Unknown error"));
       }
     } catch (err) {
-      alert("Network error: Could not connect to the database.");
+      alert("NETWORK ERROR: Check your connection or Vercel logs.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ padding: "50px", textAlign: "center" }}>
+    <div style={{ padding: "40px", textAlign: "center", fontFamily: "sans-serif" }}>
       <h1>Register Account</h1>
-      <form onSubmit={handleSubmit}>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        <button type="submit">Register</button>
+      <form onSubmit={handleSubmit} style={{ display: "inline-block", textAlign: "left" }}>
+        <input 
+          type="email" 
+          placeholder="Email" 
+          value={email} 
+          onChange={(e) => setEmail(e.target.value)} 
+          required 
+          style={{ display: "block", marginBottom: "10px", padding: "8px" }}
+        />
+        <input 
+          type="password" 
+          placeholder="Password" 
+          value={password} 
+          onChange={(e) => setPassword(e.target.value)} 
+          required 
+          style={{ display: "block", marginBottom: "10px", padding: "8px" }}
+        />
+        <button type="submit" disabled={loading} style={{ padding: "10px 20px" }}>
+          {loading ? "Registering..." : "Register"}
+        </button>
       </form>
     </div>
   );
