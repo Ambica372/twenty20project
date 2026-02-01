@@ -4,12 +4,10 @@ import { useState } from "react";
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [status, setStatus] = useState({ message: "", type: "" }); // To show feedback
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // STOP the page from refreshing
-    setStatus({ message: "Connecting to server...", type: "info" });
-
+    e.preventDefault(); // This stops the page from just refreshing
+    
     try {
       const res = await fetch("/api/register", {
         method: "POST",
@@ -17,61 +15,25 @@ export default function Register() {
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await res.json();
-
       if (res.ok) {
-        // SUCCESS: Requirement for "Clear success message"
-        setStatus({ message: "Registration Successful! You can now log in.", type: "success" });
-        alert("Success: User data stored in database!"); 
-        setEmail("");
-        setPassword("");
+        alert("Registration Successful! Now try to Login."); // REQUIRED SUCCESS MESSAGE
+        window.location.href = "/"; // Redirect to login
       } else {
-        // ERROR: Requirement for "Clear error message"
-        setStatus({ message: data.message || "Registration failed", type: "error" });
+        const errorData = await res.json();
+        alert("Error: " + errorData.message); // REQUIRED ERROR MESSAGE
       }
     } catch (err) {
-      console.error(err);
-      setStatus({ message: "Network error. Check your connection.", type: "error" });
+      alert("Network error: Could not connect to the database.");
     }
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '400px', margin: 'auto' }}>
-      <h2>Register for Portfolio</h2>
-      
-      {/* SUCCESS/ERROR BOXES */}
-      {status.message && (
-        <div style={{ 
-          padding: '10px', 
-          marginBottom: '10px', 
-          borderRadius: '5px',
-          backgroundColor: status.type === 'success' ? '#d4edda' : '#f8d7da',
-          color: status.type === 'success' ? '#155724' : '#721c24'
-        }}>
-          {status.message}
-        </div>
-      )}
-
+    <div style={{ padding: "50px", textAlign: "center" }}>
+      <h1>Register Account</h1>
       <form onSubmit={handleSubmit}>
-        <input 
-          type="email" 
-          placeholder="Email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
-          style={{ display: 'block', width: '100%', marginBottom: '10px', padding: '8px' }}
-        />
-        <input 
-          type="password" 
-          placeholder="Password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
-          style={{ display: 'block', width: '100%', marginBottom: '10px', padding: '8px' }}
-        />
-        <button type="submit" style={{ width: '100%', padding: '10px', cursor: 'pointer' }}>
-          Register
-        </button>
+        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <button type="submit">Register</button>
       </form>
     </div>
   );
