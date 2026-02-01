@@ -1,25 +1,3 @@
-"use client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-
-export default function LandingPage() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const router = useRouter();
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const endpoint = isLogin ? "/api/login" : "/api/register";
-    
-    const res = await fetch(endpoint, {
-      method: "POST",
-      body: JSON.stringify({ email, password }),
-      headers: { "Content-Type": "application/json" },
-    });
-
-    const data = await res.json();
     if (res.ok) {
       if (isLogin) {
         localStorage.setItem("userEmail", email);
