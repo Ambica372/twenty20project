@@ -3,15 +3,16 @@ import User from "@/models/User";
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 
+// This function MUST be named POST to handle registration data
 export async function POST(req) {
     try {
+        await connectDB();
         const { email, password } = await req.json();
 
+        // Basic validation
         if (!email || !password) {
-            return NextResponse.json({ message: "Missing email or password" }, { status: 400 });
+            return NextResponse.json({ message: "Email and password are required" }, { status: 400 });
         }
-
-        await connectDB();
 
         const existingUser = await User.findOne({ email });
         if (existingUser) {
