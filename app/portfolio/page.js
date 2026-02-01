@@ -10,22 +10,31 @@ export default function Portfolio() {
     const user = localStorage.getItem("userEmail");
     if (!user) router.push("/");
     else setEmail(user);
-  }, []);
+  }, [router]);
 
   return (
-    <div style={{ padding: "40px", fontFamily: "sans-serif" }}>
-      <h1>{email}'s Portfolio</h1>
-      <button onClick={() => { localStorage.clear(); router.push("/"); }} style={{ color: "red" }}>Logout</button>
-      <div style={{ marginTop: "20px", border: "1px solid blue", padding: "20px" }}>
-        <h2>Ambica Natraj | B.Tech CSE</h2>
-        <p><strong>University:</strong> M. S. Ramaiah University Of Applied Sciences</p>
-        <p><strong>Academic Excellence:</strong> 9.48 CGPA</p>
-        <h3>Core Projects:</h3>
-        <ul>
-          <li><strong>YOLOv8 Facial Recognition:</strong> Detection under transparent barriers.</li>
-          <li><strong>Agentic AI Platform:</strong> Adaptive educational content tailoring.</li>
-        </ul>
-      </div>
+    <div style={{ padding: "30px", fontFamily: "sans-serif", maxWidth: "800px", margin: "auto" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", borderBottom: "2px solid #0070f3" }}>
+        <h1>Ambica Natraj</h1>
+        <button onClick={() => { localStorage.clear(); router.push("/"); }} style={{ color: "red", cursor: "pointer" }}>Logout</button>
+      </header>
+
+      <section style={{ marginTop: "20px" }}>
+        <p><strong>Email:</strong> {email}</p>
+        <p><strong>Education:</strong> B.Tech CSE, MSRUAS | <strong>CGPA: 9.48</strong></p>
+      </section>
+
+      <section style={{ marginTop: "20px" }}>
+        <h2>Core Projects</h2>
+        <div style={{ marginBottom: "15px", padding: "10px", backgroundColor: "#f4f4f4" }}>
+          <h3>Facial Detection (YOLOv8-face)</h3>
+          <p>High-accuracy recognition system developed for occluded environments.</p>
+        </div>
+        <div style={{ padding: "10px", backgroundColor: "#f4f4f4" }}>
+          <h3>Agentic AI Platform</h3>
+          <p>Adaptive educational platform using RAG and NLP classifiers.</p>
+        </div>
+      </section>
     </div>
   );
 }
